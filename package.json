@@ -1,0 +1,72 @@
+{
+  "name": "vuepagelet",
+  "version": "0.0.0",
+  "description": "Vue page renderer with dom/router/runtime boundaries and deferred streaming",
+  "type": "module",
+  "author": "Maofeng <hornjs@qq.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/hornjs/vuepagelet#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hornjs/vuepagelet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hornjs/vuepagelet/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./integration": "./src/integration.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "example:basic": "tsx examples/basic/server.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:node": "vitest run --project node",
+    "test:browser": "vitest run --project browser",
+    "test:browser:watch": "vitest --project browser --watch",
+    "test:browser:headed": "VITEST_BROWSER_HEADLESS=false vitest --project browser --watch",
+    "typecheck": "tsc --noEmit",
+    "release": "bumpp",
+    "prepare:publish": "prepare-publish --print-tree",
+    "prepare:publish:dry-run": "prepare-publish --dry-run",
+    "prepublishOnly": "pnpm run build && pnpm run prepare:publish"
+  },
+  "dependencies": {
+    "devalue": "^5.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vitest/browser-playwright": "^4.1.2",
+    "@vue/server-renderer": "^3.5.30",
+    "bumpp": "^11.0.1",
+    "playwright": "^1.58.2",
+    "prepare-publish": "catalog:",
+    "tsdown": "^0.21.7",
+    "tsx": "catalog:",
+    "typescript": "^6.0.2",
+    "vite": "8.0.2",
+    "vitest": "^4.1.2",
+    "vue": "^3.5.30",
+    "vue-router": "^4.6.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.30",
+    "vue-router": "^4.6.4"
+  }
+}
