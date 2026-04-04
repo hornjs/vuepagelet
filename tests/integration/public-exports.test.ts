@@ -1,0 +1,62 @@
+import { describe, expect, it } from "vitest";
+import * as PublicApi from "../../src/index.ts";
+import * as IntegrationApi from "../../src/integration.ts";
+
+describe("public exports", () => {
+  it("exposes the usage-facing api from src/index.ts", () => {
+    expect(PublicApi.defer).toBeTypeOf("function");
+    expect(PublicApi.RouterLink).toBeTruthy();
+    expect(PublicApi.RouterView).toBeTruthy();
+    expect(PublicApi.renderRouteTree).toBeTypeOf("function");
+    expect(PublicApi.useActionData).toBeTypeOf("function");
+    expect(PublicApi.useDeferredData).toBeTypeOf("function");
+    expect(PublicApi.useDeferredError).toBeTypeOf("function");
+    expect(PublicApi.useLoaderData).toBeTypeOf("function");
+    expect(PublicApi.useRouteLoaderData).toBeTypeOf("function");
+    expect(PublicApi.useNavigation).toBeTypeOf("function");
+    expect(PublicApi.useState).toBeTypeOf("function");
+    expect(PublicApi.useCurrentPageRoute).toBeTypeOf("function");
+    expect(PublicApi.usePageRoute).toBeTypeOf("function");
+    expect(PublicApi.useRoute).toBeTypeOf("function");
+    expect(PublicApi.useRouter).toBeTypeOf("function");
+    expect(PublicApi.useFetcher).toBeTypeOf("function");
+    expect(PublicApi.useFormAction).toBeTypeOf("function");
+    expect(PublicApi.useSubmit).toBeTypeOf("function");
+  });
+
+  it("exposes the integration-facing api from src/integration.ts", () => {
+    expect(IntegrationApi.createRouteRuntimeIntegration).toBeTypeOf("function");
+    expect(IntegrationApi.hydratePage).toBeTypeOf("function");
+    expect(IntegrationApi.renderPageResponse).toBeTypeOf("function");
+    expect(IntegrationApi.createRouteResolver).toBeTypeOf("function");
+    expect(IntegrationApi.matchPageRoute).toBeTypeOf("function");
+    expect(IntegrationApi.resolveNavigationLocation).toBeTypeOf("function");
+    expect(IntegrationApi.createVuePageRouteRecords).toBeTypeOf("function");
+    expect(IntegrationApi.createPageRouter).toBeTypeOf("function");
+    expect(IntegrationApi.createPageRouteComponent).toBeTypeOf("function");
+    expect(IntegrationApi.createPageRouteMeta).toBeTypeOf("function");
+    expect(IntegrationApi.resolvePageRouteRecord).toBeTypeOf("function");
+    expect(IntegrationApi.executeMatchedAction).toBeTypeOf("function");
+    expect(IntegrationApi.executeActionForMatch).toBeTypeOf("function");
+    expect(IntegrationApi.defer).toBeTypeOf("function");
+    expect(IntegrationApi.isDeferredData).toBeTypeOf("function");
+    expect(IntegrationApi.loadRouteData).toBeTypeOf("function");
+    expect(IntegrationApi.encodeDeferredChunk).toBeTypeOf("function");
+    expect(IntegrationApi.runWithRouteMiddleware).toBeTypeOf("function");
+    expect(IntegrationApi.collectRouteMiddleware).toBeTypeOf("function");
+    expect(IntegrationApi.handlePageRequest).toBeTypeOf("function");
+    expect(IntegrationApi.createPageRuntimeState).toBeTypeOf("function");
+    expect(IntegrationApi.usePageRuntimeState).toBeTypeOf("function");
+    expect(IntegrationApi.applyDeferredChunk).toBeTypeOf("function");
+    expect(IntegrationApi.applyActionData).toBeTypeOf("function");
+    expect(IntegrationApi.setPendingDeferredKeys).toBeTypeOf("function");
+    expect(IntegrationApi.initializeTransition).toBeTypeOf("function");
+    expect(IntegrationApi.startNavigation).toBeTypeOf("function");
+    expect(IntegrationApi.finishNavigation).toBeTypeOf("function");
+    expect(IntegrationApi.startLoading).toBeTypeOf("function");
+    expect(IntegrationApi.finishLoading).toBeTypeOf("function");
+    expect(IntegrationApi.startSubmitting).toBeTypeOf("function");
+    expect(IntegrationApi.finishSubmitting).toBeTypeOf("function");
+    expect(IntegrationApi.useTransitionManager).toBeTypeOf("function");
+  });
+});
