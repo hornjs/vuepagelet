@@ -6,7 +6,8 @@ import { createPageRouter } from "../../../../src/lib/router/router.ts";
 import type { PageRouteRecord } from "../../../../src/lib/router/types.ts";
 import { pageRuntimeStateKey } from "../../../../src/lib/runtime/types.ts";
 import { createPageRuntimeState } from "../../../../src/lib/runtime/state.ts";
-import { useFetcher, useSubmit } from "../../../../src/lib/dom/composables/use-submit.ts";
+import { useFetcher } from "../../../../src/lib/dom/composables/use-fetcher.ts";
+import { useSubmit } from "../../../../src/lib/dom/composables/use-submit.ts";
 
 describe("useSubmit", () => {
   it("merges action revalidation payloads into runtime state and clears stale matched boundary errors", async () => {

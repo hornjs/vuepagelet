@@ -2,7 +2,10 @@ import { computed, type ComputedRef } from "vue";
 import { usePageRuntimeState } from "../../runtime/state.ts";
 import { resolveRouteRef } from "./loader-data-shared.ts";
 
-export function useLoaderData<T = unknown>(routeId?: string): ComputedRef<T | null> {
+export function useDeferredError<T = unknown>(
+  key: string,
+  routeId?: string,
+): ComputedRef<T | null> {
   const state = usePageRuntimeState();
   const resolvedRoute = resolveRouteRef(routeId);
 
@@ -11,6 +14,6 @@ export function useLoaderData<T = unknown>(routeId?: string): ComputedRef<T | nu
       return null;
     }
 
-    return (state.loaderData[resolvedRoute.value] as T | undefined) ?? null;
+    return (state.deferredErrors[resolvedRoute.value]?.[key] as T | undefined) ?? null;
   });
 }

@@ -6,7 +6,7 @@ import { matchPageRoute } from "../../src/lib/router/matcher.ts";
 import type { PageRouteRecord } from "../../src/lib/router/types.ts";
 import { createPageRuntimeState } from "../../src/lib/runtime/state.ts";
 import { pageRuntimeStateKey } from "../../src/lib/runtime/types.ts";
-import { useAppData } from "../../src/lib/dom/composables/use-app.ts";
+import { useAppData } from "../../src/lib/dom/composables/use-app-data.ts";
 import { useSubmit } from "../../src/lib/dom/composables/use-submit.ts";
 
 function createRoutes(): PageRouteRecord[] {

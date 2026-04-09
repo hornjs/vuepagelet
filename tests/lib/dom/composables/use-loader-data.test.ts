@@ -2,11 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSSRApp, defineComponent, h } from "vue";
 import { renderToString } from "@vue/server-renderer";
 import { currentRouteRecordKey } from "../../../../src/lib/dom/composables/use-route.ts";
-import {
-  useDeferredData,
-  useDeferredError,
-  useRouteLoaderData,
-} from "../../../../src/lib/dom/composables/use-loader-data.ts";
+import { useDeferredData } from "../../../../src/lib/dom/composables/use-deferred-data.ts";
+import { useDeferredError } from "../../../../src/lib/dom/composables/use-deferred-error.ts";
+import { useRouteLoaderData } from "../../../../src/lib/dom/composables/use-route-loader-data.ts";
 import { pageRuntimeStateKey } from "../../../../src/lib/runtime/types.ts";
 import type { PageRuntimeState } from "../../../../src/lib/runtime/types.ts";
 import { createTransitionState } from "../../../../src/lib/runtime/transition-manager.ts";

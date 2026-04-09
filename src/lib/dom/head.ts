@@ -1,11 +1,4 @@
-import {
-  inject,
-  onUnmounted,
-  toValue,
-  watchEffect,
-  type InjectionKey,
-  type MaybeRefOrGetter,
-} from "vue";
+import { inject, onUnmounted, type InjectionKey } from "vue";
 
 const HEAD_MARKER_ATTR = "data-vuepagelet-head";
 
@@ -116,63 +109,6 @@ export function injectHeadSnapshotIntoHtml(html: string, snapshot: HeadSnapshot)
   });
 }
 
-export function useHead(input: MaybeRefOrGetter<HeadInput | null | undefined>): void {
-  const manager = useHeadManager();
-  const key = Symbol("vuepagelet-head-entry");
-
-  watchEffect(
-    () => {
-      const value = toValue(input);
-      manager.setEntry(key, value ?? {});
-    },
-    {
-      flush: "sync",
-    },
-  );
-
-  onUnmounted(() => {
-    manager.deleteEntry(key);
-  });
-}
-
-export function useTitle(title: MaybeRefOrGetter<string | null | undefined>): void {
-  useHead(() => ({
-    title: toValue(title),
-  }));
-}
-
-export function useMeta(
-  meta: MaybeRefOrGetter<readonly HeadMetaDescriptor[] | null | undefined>,
-): void {
-  useHead(() => ({
-    meta: toValue(meta) ?? [],
-  }));
-}
-
-export function useLink(
-  link: MaybeRefOrGetter<readonly HeadLinkDescriptor[] | null | undefined>,
-): void {
-  useHead(() => ({
-    link: toValue(link) ?? [],
-  }));
-}
-
-export function useStyle(
-  style: MaybeRefOrGetter<readonly HeadStyleDescriptor[] | null | undefined>,
-): void {
-  useHead(() => ({
-    style: toValue(style) ?? [],
-  }));
-}
-
-export function useScript(
-  script: MaybeRefOrGetter<readonly HeadScriptDescriptor[] | null | undefined>,
-): void {
-  useHead(() => ({
-    script: toValue(script) ?? [],
-  }));
-}
-
 export function updateHead(input: HeadInput): HeadUpdateHandle {
   const manager = useHeadManager();
   const key = Symbol("vuepagelet-head-update");
@@ -193,7 +129,7 @@ export function updateHead(input: HeadInput): HeadUpdateHandle {
   };
 }
 
-function useHeadManager(): HeadManager {
+export function useHeadManager(): HeadManager {
   const manager = inject(headManagerKey, null);
 
   if (!manager) {
