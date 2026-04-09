@@ -5,10 +5,19 @@ import * as IntegrationApi from "../../src/integration.ts";
 describe("public exports", () => {
   it("exposes the usage-facing api from src/index.ts", () => {
     expect(PublicApi.defer).toBeTypeOf("function");
+    expect(PublicApi.ClientOnly).toBeTruthy();
+    expect(PublicApi.DevOnly).toBeTruthy();
     expect(PublicApi.RouterLink).toBeTruthy();
     expect(PublicApi.RouterView).toBeTruthy();
     expect(PublicApi.renderRouteTree).toBeTypeOf("function");
     expect(PublicApi.useActionData).toBeTypeOf("function");
+    expect(PublicApi.useHead).toBeTypeOf("function");
+    expect(PublicApi.useTitle).toBeTypeOf("function");
+    expect(PublicApi.useMeta).toBeTypeOf("function");
+    expect(PublicApi.useLink).toBeTypeOf("function");
+    expect(PublicApi.useStyle).toBeTypeOf("function");
+    expect(PublicApi.useScript).toBeTypeOf("function");
+    expect(PublicApi.updateHead).toBeTypeOf("function");
     expect(PublicApi.useDeferredData).toBeTypeOf("function");
     expect(PublicApi.useDeferredError).toBeTypeOf("function");
     expect(PublicApi.useLoaderData).toBeTypeOf("function");

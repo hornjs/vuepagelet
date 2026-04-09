@@ -190,4 +190,76 @@ describe("dom ssr renderer", () => {
     expect(html).toContain("counter: 1");
     expect(html).toContain("state:{counter:1}");
   });
+
+  it("renders managed head entries plus ClientOnly and DevOnly behavior", async () => {
+    const HeadPage = defineComponent({
+      name: "HeadPage",
+      setup() {
+        PublicApi.useTitle("managed title");
+        PublicApi.useMeta([{ name: "description", content: "managed description" }]);
+        PublicApi.useLink([{ rel: "canonical", href: "https://example.test/posts/hello" }]);
+        PublicApi.useStyle([{ children: "body{color:rgb(1,2,3);}" }]);
+        PublicApi.useScript([
+          { type: "application/ld+json", children: '{"@context":"https://schema.org"}' },
+        ]);
+        PublicApi.updateHead({
+          htmlAttrs: {
+            lang: "fr",
+            "data-theme": "night",
+          },
+          bodyAttrs: {
+            "data-page": "head",
+          },
+        });
+
+        return () =>
+          h("main", [
+            h(PublicApi.ClientOnly, null, {
+              default: () => h("div", "client content"),
+              fallback: () => h("div", "client fallback"),
+            }),
+            h(PublicApi.DevOnly, null, {
+              default: () => h("div", "dev content"),
+            }),
+          ]);
+      },
+    });
+    const routes: PageRouteRecord[] = [
+      {
+        id: "root",
+        path: "/",
+        module: {
+          component: HeadPage,
+        },
+        children: [],
+      },
+    ];
+
+    const response = await renderPageResponse({
+      request: new Request("http://local/"),
+      routes,
+    });
+
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain('<html data-vuepagelet lang="fr" data-theme="night">');
+    expect(html).toContain('<body data-page="head">');
+    expect(html).toContain('<title data-vuepagelet-head="true">managed title</title>');
+    expect(html).toContain(
+      '<meta data-vuepagelet-head="true" name="description" content="managed description">',
+    );
+    expect(html).toContain(
+      '<link data-vuepagelet-head="true" rel="canonical" href="https://example.test/posts/hello">',
+    );
+    expect(html).toContain(
+      '<style data-vuepagelet-head="true">body{color:rgb(1,2,3);}</style>',
+    );
+    expect(html).toContain(
+      '<script data-vuepagelet-head="true" type="application/ld+json">{"@context":"https://schema.org"}</script>',
+    );
+    expect(html).toContain("client fallback");
+    expect(html).not.toContain("client content");
+    expect(html).toContain("dev content");
+  });
 });

@@ -1,7 +1,8 @@
-import { createSSRApp, defineComponent, h, nextTick, shallowRef, toRaw, type App } from "vue";
+import { createApp, createSSRApp, defineComponent, h, nextTick, shallowRef, toRaw, type App } from "vue";
 import { AppErrorBoundary } from "./components/app-error-boundary.ts";
 import { RouterView } from "./components/route-view.ts";
 import { initializeClientStateStore, stateStoreKey } from "./composables/use-state.ts";
+import { createHeadManager, headManagerKey } from "./head.ts";
 import { createRouteLocationKey } from "../router/location.ts";
 import { pageRuntimeStateKey } from "../runtime/types.ts";
 import {
@@ -27,6 +28,9 @@ interface DocumentHydrationContainer {
   _vnode?: unknown;
   firstChild: Element | null;
   hasChildNodes(): boolean;
+  insertBefore(node: Node, anchor: Node | null): Node;
+  appendChild(node: Node): Node;
+  removeChild(node: Node): Node;
 }
 
 interface ClientRuntimeSnapshot {
@@ -73,6 +77,7 @@ export function hydratePage(options: HydratePageOptions): HydratedPageApp {
   const hydrationSnapshot = runtime?.hydrationState ?? runtime?.state;
   const state = createPageRuntimeState(route, options.routes);
   const stateStore = initializeClientStateStore(hydrationSnapshot?.state ?? {});
+  const headManager = createHeadManager();
   const appShell = shallowRef(resolveComponent(options.app?.shell));
   const appErrorComponent = shallowRef(resolveComponent(options.app?.error));
   const hmrVersion = shallowRef(0);
@@ -119,20 +124,19 @@ export function hydratePage(options: HydratePageOptions): HydratedPageApp {
     },
   });
 
-  const app = createSSRApp(Root);
-  const router = createPageRouter({
-    routes: options.routes,
-    state,
-  });
-  app.use(router);
-  app.provide(pageRuntimeStateKey, state);
-  app.provide(stateStoreKey, stateStore);
-
   let unsubscribe: (() => void) | undefined;
   let restoreAppRuntimeHmr: (() => void) | undefined;
+  let app: App | undefined;
+  let router: ReturnType<typeof createPageRouter> | undefined;
 
   return {
-    app,
+    get app() {
+      if (!app) {
+        throw new Error("the vuepagelet app is not mounted yet");
+      }
+
+      return app;
+    },
     async mount() {
       const root = document.querySelector(ROOT_MARKER);
       const container = options.app?.shell
@@ -144,9 +148,25 @@ export function hydratePage(options: HydratePageOptions): HydratedPageApp {
 
             return root;
           })();
+      const shouldHydrate = options.app?.shell ? false : container.hasChildNodes();
+      const mountTarget = container;
+      app = shouldHydrate ? createSSRApp(Root) : createApp(Root);
+      router = createPageRouter({
+        routes: options.routes,
+        state,
+      });
+
+      app.use(router);
+      app.provide(pageRuntimeStateKey, state);
+      app.provide(stateStoreKey, stateStore);
+      app.provide(headManagerKey, headManager);
 
       await router.isReady();
-      app.mount(container as string | Element);
+      app.mount(mountTarget as string | Element);
+      if (options.app?.shell) {
+        document.documentElement.setAttribute(DOCUMENT_MARKER, "");
+      }
+      headManager.connectDocument(document);
       restoreAppRuntimeHmr = installAppRuntimeHotUpdateHook(
         {
           state,
@@ -182,6 +202,7 @@ export function hydratePage(options: HydratePageOptions): HydratedPageApp {
       app.unmount = () => {
         unsubscribe?.();
         unsubscribe = undefined;
+        headManager.disconnectDocument();
         restoreAppRuntimeHmr?.();
         restoreAppRuntimeHmr = undefined;
         originalUnmount();
@@ -219,6 +240,21 @@ function resolveDocumentHydrationContainer(): DocumentHydrationContainer {
     firstChild: document.documentElement,
     hasChildNodes() {
       return true;
+    },
+    insertBefore(node, _anchor) {
+      const currentRoot = document.documentElement;
+      if (currentRoot) {
+        document.replaceChild(node, currentRoot);
+        return node;
+      }
+
+      return document.appendChild(node);
+    },
+    appendChild(node) {
+      return this.insertBefore(node, null);
+    },
+    removeChild(node) {
+      return document.removeChild(node);
     },
   };
 }

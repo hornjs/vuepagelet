@@ -1,6 +1,7 @@
 import { renderToString } from "@vue/server-renderer";
 import { createSSRApp, defineComponent, h, toRaw } from "vue";
 import { createMemoryHistory } from "vue-router";
+import { createHeadManager, headManagerKey, injectHeadSnapshotIntoHtml } from "../head.ts";
 import { createStateStore, serializeStateStore, stateStoreKey } from "../composables/use-state.ts";
 import type { PageRouteMatch, PageRouteRecord } from "../../router/types.ts";
 import { createRouteLocationKey } from "../../router/location.ts";
@@ -47,6 +48,7 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
 
       const state = createPageRuntimeState(matchedRoute, options.routes);
       const stateStore = createStateStore();
+      const headManager = createHeadManager();
       const appState = await resolveAppState(options.request, options.app, true);
       state.appData = appState.data;
       state.appError = appState.error;
@@ -58,6 +60,7 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
         matchedRoute,
         state,
         stateStore,
+        headManager,
         options.app,
         options.routes,
       );
@@ -73,7 +76,7 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
       };
 
       const stream = createChunkedDocumentStream(
-        html,
+        injectHeadSnapshotIntoHtml(html, headManager.snapshot()),
         payload,
         loaded.pending,
         options.request.signal,
@@ -107,6 +110,7 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
 
       const state = createPageRuntimeState(matchedRoute, options.routes);
       const stateStore = createStateStore();
+      const headManager = createHeadManager();
       const appState = await resolveAppState(options.request, options.app, true);
       state.appData = appState.data;
       state.appError = appState.error;
@@ -118,6 +122,7 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
         matchedRoute,
         state,
         stateStore,
+        headManager,
         options.app,
         options.routes,
       );
@@ -132,12 +137,19 @@ export async function renderPageResponse(options: StreamRenderOptions): Promise<
         routeErrors: state.routeErrors,
       };
 
-      return new Response(injectBootstrapPayload(html, payload, options.clientEntryPath), {
-        status: options.status ?? 500,
-        headers: {
-          "content-type": "text/html; charset=utf-8",
+      return new Response(
+        injectBootstrapPayload(
+          injectHeadSnapshotIntoHtml(html, headManager.snapshot()),
+          payload,
+          options.clientEntryPath,
+        ),
+        {
+          status: options.status ?? 500,
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+          },
         },
-      });
+      );
     }
   });
 }
@@ -146,6 +158,7 @@ async function renderApplicationToString(
   route: PageRouteMatch,
   state: ReturnType<typeof createPageRuntimeState>,
   stateStore: ReturnType<typeof createStateStore>,
+  headManager: ReturnType<typeof createHeadManager>,
   appModule?: AppModule,
   routes?: PageRouteRecord[],
   attempt = 0,
@@ -202,6 +215,7 @@ async function renderApplicationToString(
   app.use(router);
   app.provide(pageRuntimeStateKey, state);
   app.provide(stateStoreKey, stateStore);
+  app.provide(headManagerKey, headManager);
   let capturedError: unknown;
   let capturedRouteId: string | undefined;
 
@@ -222,7 +236,15 @@ async function renderApplicationToString(
         state.appError !== initialAppError) &&
       attempt === 0
     ) {
-      return renderApplicationToString(route, state, stateStore, appModule, routes, attempt + 1);
+      return renderApplicationToString(
+        route,
+        state,
+        stateStore,
+        headManager,
+        appModule,
+        routes,
+        attempt + 1,
+      );
     }
 
     if (capturedError) {
