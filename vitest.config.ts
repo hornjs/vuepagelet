@@ -4,6 +4,11 @@ import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [vue()],
+  define: {
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+  },
   optimizeDeps: {
     include: ["@vue/server-renderer"],
   },
@@ -23,6 +28,7 @@ export default defineConfig({
         test: {
           name: "browser",
           include: ["tests/browser/**/*.test.ts"],
+          setupFiles: ["tests/browser/setup.ts"],
           browser: {
             enabled: true,
             headless: process.env.VITEST_BROWSER_HEADLESS !== "false",

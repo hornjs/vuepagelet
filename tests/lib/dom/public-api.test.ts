@@ -1,7 +1,7 @@
 import { renderToString } from "@vue/server-renderer";
 import { createSSRApp, defineComponent, h } from "vue";
 import { createMemoryHistory } from "vue-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { RouterLink } from "../../../src/lib/dom/components/route-link.ts";
 import { RouterView, renderRouteTree } from "../../../src/lib/dom/components/route-view.ts";
 import { useActionData } from "../../../src/lib/dom/composables/use-action-data.ts";
@@ -19,6 +19,10 @@ import { initializeTransition, startLoading } from "../../../src/lib/runtime/tra
 import { pageRuntimeStateKey } from "../../../src/lib/runtime/types.ts";
 
 describe("dom public api", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("renders router link href and renderRouteTree follows match presence", async () => {
     const routes: PageRouteRecord[] = [
       {
@@ -43,7 +47,21 @@ describe("dom public api", () => {
             },
           }),
         },
-        children: [],
+        children: [
+          {
+            id: "posts",
+            path: "posts",
+            module: {},
+            children: [
+              {
+                id: "post-detail",
+                path: ":slug",
+                module: {},
+                children: [],
+              },
+            ],
+          },
+        ],
       },
     ];
     const match = {
@@ -67,6 +85,7 @@ describe("dom public api", () => {
       state,
       history: createMemoryHistory(),
     });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     await router.push("/");
     await router.isReady();
@@ -79,6 +98,7 @@ describe("dom public api", () => {
     expect(html).toContain("go to post");
     expect(renderRouteTree([])).toBeNull();
     expect(renderRouteTree(routes)).not.toBeNull();
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it("exposes route, page route, router, navigation, and action data composables", async () => {

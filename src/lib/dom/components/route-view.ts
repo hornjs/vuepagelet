@@ -4,6 +4,7 @@ import type { PageRouteRecord } from "../../router/types.ts";
 
 export const RouterView = defineComponent({
   name: "PageRendererRouterView",
+  inheritAttrs: false,
   setup() {
     return () => h(VueRouterView);
   },

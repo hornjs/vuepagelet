@@ -5,10 +5,10 @@ import { useCurrentPageRoute, usePageRoute } from "./use-route.ts";
 export function useLoaderData<T = unknown>(routeId?: string): ComputedRef<T | null> {
   const state = usePageRuntimeState();
   const currentPageRoute = useCurrentPageRoute();
-  const pageRoute = usePageRoute();
+  const pageRoute = currentPageRoute ? null : usePageRoute();
 
   return computed(() => {
-    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute.value?.id;
+    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute?.value?.id;
     if (!resolvedRouteId) {
       return null;
     }
@@ -32,10 +32,10 @@ export function useRouteLoaderData<T = unknown>(routeId: string): ComputedRef<T 
 export function useDeferredData<T = unknown>(key: string, routeId?: string): ComputedRef<T | null> {
   const state = usePageRuntimeState();
   const currentPageRoute = useCurrentPageRoute();
-  const pageRoute = usePageRoute();
+  const pageRoute = currentPageRoute ? null : usePageRoute();
 
   return computed(() => {
-    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute.value?.id;
+    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute?.value?.id;
     if (!resolvedRouteId) {
       return null;
     }
@@ -50,10 +50,10 @@ export function useDeferredError<T = unknown>(
 ): ComputedRef<T | null> {
   const state = usePageRuntimeState();
   const currentPageRoute = useCurrentPageRoute();
-  const pageRoute = usePageRoute();
+  const pageRoute = currentPageRoute ? null : usePageRoute();
 
   return computed(() => {
-    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute.value?.id;
+    const resolvedRouteId = routeId ?? currentPageRoute?.id ?? pageRoute?.value?.id;
     if (!resolvedRouteId) {
       return null;
     }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSSRApp, defineComponent, h } from "vue";
 import { renderToString } from "@vue/server-renderer";
 import { currentRouteRecordKey } from "../../../../src/lib/dom/composables/use-route.ts";
@@ -22,6 +22,10 @@ function createRoute(id: string, path: string): PageRouteRecord {
 }
 
 describe("useRouteLoaderData", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("reads loader data for a parent route id from a child route context", async () => {
     const root = createRoute("root", "/");
     const posts = createRoute("posts", "posts");
@@ -139,6 +143,7 @@ describe("useRouteLoaderData", () => {
         return () => h(Probe);
       },
     });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     app.provide(pageRuntimeStateKey, state);
     app.provide(currentRouteRecordKey, postDetail);
@@ -146,5 +151,6 @@ describe("useRouteLoaderData", () => {
     const html = await renderToString(app);
     expect(html).toContain("&quot;title&quot;:&quot;Deferred content&quot;");
     expect(html).toContain("&quot;message&quot;:&quot;Deferred failed&quot;");
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });

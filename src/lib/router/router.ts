@@ -374,9 +374,7 @@ function resolveRouteSubject(options: {
   isRevalidating: boolean;
 }) {
   if ((options.hasPendingDeferred || options.isRevalidating) && options.loading) {
-    return h(options.loading as never, {
-      route: options.route,
-    });
+    return h(options.loading as never);
   }
 
   if (!options.component) {
@@ -578,7 +576,6 @@ const PageRouteErrorBoundary = defineComponent({
       if (activeError) {
         return h(props.errorComponent as never, {
           error: activeError,
-          route: props.route,
         });
       }
 

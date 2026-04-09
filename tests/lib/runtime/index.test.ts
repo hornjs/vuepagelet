@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToString } from "@vue/server-renderer";
 import { createSSRApp, defineComponent, h } from "vue";
 import { createMemoryHistory } from "vue-router";
@@ -70,6 +70,10 @@ function createRoutes(): PageRouteRecord[] {
 }
 
 describe("vuepagelet", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("matches nested routes with vue-router matcher", () => {
     const match = matchPageRoute("http://local/blog/hello?draft=1", createRoutes());
 
@@ -319,6 +323,7 @@ describe("vuepagelet", () => {
       },
     ];
 
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const response = await handlePageRequest(new Request("http://local/deferred"), {
       routes,
     });
@@ -327,6 +332,7 @@ describe("vuepagelet", () => {
     expect(html).toContain("layout shell");
     expect(html).toContain("loading state");
     expect(html).not.toContain("page content");
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it("renders route error inside layout", async () => {
