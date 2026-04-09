@@ -1,5 +1,7 @@
 # Basic Example
 
+`examples/basic` is the low-level runtime demo. It exists to show the smallest stable package-style surface for `vuepagelet`, not to host a full showcase app.
+
 Run:
 
 ```bash
@@ -38,6 +40,8 @@ What this example shows:
   - `root` uses `layout`
   - `posts` group route uses `layout + error`
   - `post-detail` leaf route uses `loading`
+
+Feature showcases that need a fuller application shell should live in `examples/todo-app` instead of expanding this demo.
 
 To inspect the streamed deferred payload directly:
 

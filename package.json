@@ -35,6 +35,7 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "example:basic": "tsx examples/basic/server.ts",
+    "example:todo-app": "tsx examples/todo-app/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:node": "vitest run --project node",
