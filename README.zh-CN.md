@@ -22,10 +22,19 @@
 
 ### `vuepagelet`
 
+- `ClientOnly`
+- `DevOnly`
 - `RouterView`
 - `RouterLink`
 - `useAppData`
 - `useAppError`
+- `useHead`
+- `useTitle`
+- `useMeta`
+- `useLink`
+- `useStyle`
+- `useScript`
+- `updateHead`
 - `useRoute`
 - `useRouter`
 - `useCurrentPageRoute`
@@ -118,6 +127,17 @@ runtime.hydrate().mount();
 - `action` 默认通过 `useFetcher()` / `useSubmit()` 拦截式提交
 - middleware 运行在共享的 runtime pipeline 里，并在 render/action 两个阶段复用
 
+## Head 与可见性
+
+运行时现在也包含 document head composable 和两个可见性辅助组件：
+
+- `useHead()` 是底层 document API
+- `useTitle()`、`useMeta()`、`useLink()`、`useStyle()`、`useScript()`、`updateHead()` 都建立在它之上
+- SSR 会把 head 条目注入最终文档
+- 客户端会在挂载后接管 head，同步 `document.title`、`<title>` 和其它受管 head 节点
+- `ClientOnly` 在服务端渲染 fallback，挂载后切换到客户端内容
+- `DevOnly` 只会在开发模式下渲染
+
 ## 共享状态
 
 运行时还提供了一层类似 Nuxt 的 `useState(key, initialValue?)`，用于 SSR-safe 的共享状态。
@@ -169,13 +189,20 @@ runtime.hydrate().mount();
 
 ## 示例
 
-运行基础示例：
+运行低层 runtime demo：
 
 ```bash
 pnpm example:basic
+```
+
+运行 showcase todo app：
+
+```bash
+pnpm example:todo-app
 ```
 
 参考：
 
 - [DESIGN.zh-CN.md](./DESIGN.zh-CN.md)
 - [examples/basic/README.md](./examples/basic/README.md)
+- [examples/todo-app/README.md](./examples/todo-app/README.md)

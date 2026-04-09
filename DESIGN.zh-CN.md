@@ -26,10 +26,19 @@
 
 暴露：
 
+- `ClientOnly`
+- `DevOnly`
 - `RouterView`
 - `RouterLink`
 - `useAppData`
 - `useAppError`
+- `useHead`
+- `useTitle`
+- `useMeta`
+- `useLink`
+- `useStyle`
+- `useScript`
+- `updateHead`
 - `useRoute`
 - `useRouter`
 - `useCurrentPageRoute`
@@ -273,24 +282,31 @@ route runtime 渲染在 app shell 内部。
 
 ## Hydration 模型
 
-当存在 app shell 时，hydration 模型应当是 document-level hydration。
+当前运行时有两条客户端启动路径：
+
+- 没有 app shell 时，走 element-root hydration
+- 存在 `app.shell` 时，走 document-root takeover
 
 也就是说：
 
-- SSR 返回完整 document shell
-- hydration 从 document shell 恢复整个 app
-- app shell 状态、app 数据、route 数据都属于同一份 hydration snapshot
+- 一旦存在 `app.shell`，SSR 会输出完整 document shell
+- 客户端会从统一 runtime payload 恢复 app 数据、route 数据、deferred 状态和 shared state
+- 但它不会再尝试对 document shell 内部做局部 hydration
+- 而是直接挂到 document-root 容器上，接管现有文档结构
 
-运行时最终应从 document container 进行 hydration，而不是只从 document 内的某个 element root 进行 hydration。
+这样可以保留 app shell 的 document 模型，同时避免在 `<html>`、`<head>`、`<body>` 周围做脆弱的局部 hydration。
 
-这是必要的，因为一旦引入 `app shell`、`app loader`、`app error`，document shell 本身就是应用模型的一部分。
+mount 之后，head 状态再由独立的 head manager 接管和同步。
 
-当前行为是：
+## Head 模型
 
-- 如果存在 `app.shell`，从 document container 做 hydration
-- 否则保留旧的 element-level root 兼容路径
+document head 是一层明确的 runtime state：
 
-这个兼容路径只是过渡方案，最终应在 app 级 document shell 成为唯一模型后移除。
+- `useHead()` 是底层 API
+- `useTitle()`、`useMeta()`、`useLink()`、`useStyle()`、`useScript()`、`updateHead()` 都是它之上的薄封装
+- SSR 会把受管 head 条目注入最终 HTML
+- 客户端挂载后，head manager 会重新接管并同步真实文档
+- title 更新会原位同步 `document.title` 和当前 `<title>` 节点，而不是每次替换节点
 
 ## 错误模型
 

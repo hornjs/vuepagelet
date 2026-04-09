@@ -22,10 +22,19 @@ This package exposes two entrypoints:
 
 ### `vuepagelet`
 
+- `ClientOnly`
+- `DevOnly`
 - `RouterView`
 - `RouterLink`
 - `useAppData`
 - `useAppError`
+- `useHead`
+- `useTitle`
+- `useMeta`
+- `useLink`
+- `useStyle`
+- `useScript`
+- `updateHead`
 - `useRoute`
 - `useRouter`
 - `useCurrentPageRoute`
@@ -121,6 +130,17 @@ Above the route tree, integration may provide an app-level document model throug
 - `action` defaults to intercepted submission via `useFetcher()` / `useSubmit()`
 - middleware runs in the runtime pipeline and is shared by render/action phases
 
+## Head And Visibility
+
+The runtime includes document-head composables and small visibility helpers:
+
+- `useHead()` is the low-level document API
+- `useTitle()`, `useMeta()`, `useLink()`, `useStyle()`, `useScript()`, and `updateHead()` build on top of it
+- SSR injects head entries into the rendered document
+- the client runtime connects a head manager after mount and keeps `document.title`, `<title>`, and managed head nodes in sync
+- `ClientOnly` renders fallback content on the server and swaps to client content after mount
+- `DevOnly` only renders when the current build is running in development mode
+
 ## Shared State
 
 The runtime also exposes a Nuxt-style `useState(key, initialValue?)` API for SSR-safe shared state.
@@ -170,12 +190,18 @@ Removed from the old experimental shape:
 - no `server/`
 - no standalone request handler abstraction
 
-## Example
+## Examples
 
-Run the basic example:
+Run the low-level runtime demo:
 
 ```bash
 pnpm example:basic
+```
+
+Run the showcase todo app:
+
+```bash
+pnpm example:todo-app
 ```
 
 See:
@@ -184,3 +210,4 @@ See:
 - [README.zh-CN.md](./README.zh-CN.md)
 - [DESIGN.zh-CN.md](./DESIGN.zh-CN.md)
 - [examples/basic/README.md](./examples/basic/README.md)
+- [examples/todo-app/README.md](./examples/todo-app/README.md)

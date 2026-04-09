@@ -24,10 +24,19 @@ The usage entry is for route modules and Vue components.
 
 It exposes:
 
+- `ClientOnly`
+- `DevOnly`
 - `RouterView`
 - `RouterLink`
 - `useAppData`
 - `useAppError`
+- `useHead`
+- `useTitle`
+- `useMeta`
+- `useLink`
+- `useStyle`
+- `useScript`
+- `updateHead`
 - `useRoute`
 - `useRouter`
 - `useCurrentPageRoute`
@@ -271,24 +280,31 @@ This means layout is a stable route shell, not a separate router primitive.
 
 ## Hydration Model
 
-The hydration model is document-level when an app shell exists.
+The runtime has two client boot paths:
+
+- element-root hydration when there is no app shell
+- document-root takeover when `app.shell` exists
 
 That means:
 
-- SSR returns a full document shell
-- hydration restores the app from the document shell
-- app shell state, app data, and route data are all part of one hydration snapshot
+- SSR always returns a full document shell when `app.shell` exists
+- client startup restores app data, route data, deferred state, and shared state from one runtime payload
+- when `app.shell` exists, the client does not try to hydrate a nested root inside the document shell
+- instead, it mounts against a document-root container and takes over the existing document shape
 
-The runtime should hydrate from the document container rather than a nested element-only root.
+This keeps the app shell model intact while avoiding fragile partial hydration around `<html>`, `<head>`, and `<body>`.
 
-This is required because the document shell is part of the application model once `app shell`, `app loader`, and `app error` exist.
+Head state is then synchronized separately through the head manager after mount.
 
-Current behavior is:
+## Head Model
 
-- if `app.shell` exists, hydrate from the document container
-- otherwise, keep a compatibility fallback to the previous element-level root
+The document head model is explicit runtime state.
 
-The compatibility fallback is transitional and should eventually disappear once app-level document shells become the only supported model.
+- `useHead()` is the base API
+- `useTitle()`, `useMeta()`, `useLink()`, `useStyle()`, `useScript()`, and `updateHead()` are thin helpers on top
+- SSR injects managed head entries into the outgoing HTML
+- the client head manager reconnects after mount and keeps the live document in sync
+- title updates are done in place by updating `document.title` and the active `<title>` node instead of replacing the node each time
 
 ## Error Model
 
