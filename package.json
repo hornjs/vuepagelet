@@ -1,6 +1,6 @@
 {
   "name": "vuepagelet",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Vue page renderer with dom/router/runtime boundaries and deferred streaming",
   "type": "module",
   "author": "Maofeng <hornjs@qq.com>",
